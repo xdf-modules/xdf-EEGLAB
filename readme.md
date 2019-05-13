@@ -22,3 +22,7 @@ To use `load_xdf` directly:
 
 # Documentation
 As usual in MATLAB, to get the documentation of the function, type `help load_xdf` or `doc load_xdf`.
+
+# Version note
+- Version 1.14 fixes loading datasets under Mac OSX
+
