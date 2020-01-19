@@ -24,5 +24,7 @@ To use `load_xdf` directly:
 As usual in MATLAB, to get the documentation of the function, type `help load_xdf` or `doc load_xdf`.
 
 # Version note
+- Version 1.15 fixes importing channel labels when more than 1 stream is present
 - Version 1.14 fixes loading datasets under Mac OSX
+
 
