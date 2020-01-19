@@ -81,8 +81,9 @@ try
         chn = stream.info.desc.channels.channel{c};
         if isfield(chn,'label')
             chanlocs(c).labels = chn.label; end            
-        if isfield(chn,'type')
-            chanlocs(c).type = chn.type; end
+        if isfield(chn,'type') && strcmpi(chn.type, 'EEG')
+            chanlocs(c).type = chn.type; 
+        end
         try
             chanlocs(c).X = str2double(chn.location.X)/1000;
             chanlocs(c).Y = str2double(chn.location.Y)/1000;
@@ -95,7 +96,20 @@ try
         chanlocs(c).urchan = c;
         chanlocs(c).ref = '';
     end
-    raw.chaninfo.nosedir = '+Y';    
+    raw.chaninfo.nosedir = '+Y';
+    if length(chanlocs) > size(raw.data,1) && isfield(chanlocs, 'type')
+        types = { chanlocs.type };
+        types = cellfun(@num2str, types, 'uniformoutput', false);
+        inds = strmatch(lower(args.streamtype), lower(types), 'exact');
+        if ~isempty(inds)
+            chanlocs = chanlocs(inds);
+        else
+            inds = strmatch('eeg', lower(types), 'exact');
+            if ~isempty(inds)
+                chanlocs = chanlocs(inds);
+            end
+        end
+    end
 catch e
     disp(['Could not import chanlocs: ' e.message]);
 end
