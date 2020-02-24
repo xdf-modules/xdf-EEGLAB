@@ -45,7 +45,7 @@
 
 function vers = eegplugin_xdfimport(fig, trystrs, catchstrs)
 
-    vers = 'xdfimport1.15';
+    vers = 'xdfimport1.16';
 
     if nargin < 3
         error('eegplugin_xdfimport requires 3 arguments');
