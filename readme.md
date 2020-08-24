@@ -2,7 +2,11 @@
 
 This is a MATLAB importer for .xdf files. xdf files are likely to have been created by [LabRecorder](https://github.com/labstreaminglayer/App-LabRecorder), the default file recorder for use with [LabStreamingLayer](https://github.com/sccn/labstreaminglayer). LabRecorder records a collection of streams, including all their data (time-series / markers, meta-data) into a single XDF file. The XDF format (Extensible Data Format) is a general-purpose format for time series and their meta-data that was jointly developed with LSL to ensure compatibility, see [here](http://github.com/sccn/xdf/).
 
-# Usage
+# Usage from EEGLAB
+
+Use plugin manager (mneu item File > Plugin manager) and install plugin xdfimport (we know it is called here xdf-EEGLAB and that the plugin is named differently but it is the same code). Use file import menu to import XDF files. Note that the Mobilab EEGLAB plugin also contains code to import XDF and resample multiple streams to the same sampling rate. It is an alternative to consider (Mobilab shares Matlab import functions with this plugin).
+
+# Usage from command line
 
 After a session has been recorded to disk using the LabRecorder or any other compatible recording application, it can be imported into MATLAB using the functions in this folder.
 
