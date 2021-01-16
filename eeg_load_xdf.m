@@ -77,8 +77,15 @@ raw.xmax = (raw.pnts-1)/raw.srate;
 % chanlocs...
 chanlocs = struct();
 try
+    if ~iscell(stream.info.desc.channels.channel)
+        warning('Channel structure not a cell array (likely a g.tek writer compatibility issue; Using hack to import channel info)');
+    end
     for c=1:length(stream.info.desc.channels.channel)
-        chn = stream.info.desc.channels.channel{c};
+        if iscell(stream.info.desc.channels.channel)
+            chn = stream.info.desc.channels.channel{c};
+        else
+            chn = stream.info.desc.channels.channel(c);
+        end
         if isfield(chn,'label')
             chanlocs(c).labels = chn.label; end            
         if isfield(chn,'type') && strcmpi(chn.type, 'EEG')
