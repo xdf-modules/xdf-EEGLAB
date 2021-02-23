@@ -77,15 +77,8 @@ raw.xmax = (raw.pnts-1)/raw.srate;
 % chanlocs...
 chanlocs = struct();
 try
-    if ~iscell(stream.info.desc.channels.channel)
-        warning('Channel structure not a cell array (likely a g.tek writer compatibility issue; Using hack to import channel info)');
-    end
     for c=1:length(stream.info.desc.channels.channel)
-        if iscell(stream.info.desc.channels.channel)
-            chn = stream.info.desc.channels.channel{c};
-        else
-            chn = stream.info.desc.channels.channel(c);
-        end
+        chn = stream.info.desc.channels.channel{c};
         if isfield(chn,'label')
             chanlocs(c).labels = chn.label; end            
         if isfield(chn,'type') && strcmpi(chn.type, 'EEG')
@@ -130,7 +123,7 @@ end
 % events...
 event = [];
 for s=1:length(streams)
-    if (strcmp(streams{s}.info.type,'Markers') || strcmp(streams{s}.info.type,'Events')) && ~ismember(streams{s}.info.name,args.exclude_markerstreams)
+    if (strcmp(streams{s}.info.type,'Markers') || strcmp(streams{s}.info.type,'Events') ) && ~ismember(streams{s}.info.name,args.exclude_markerstreams)
         try
             s_events = struct('type', '', 'latency', [], 'duration', num2cell(ones(1, length(streams{s}.time_stamps))));
             for e=1:length(streams{s}.time_stamps)
@@ -146,11 +139,13 @@ for s=1:length(streams)
             disp(['Could not interpret event stream named "' streams{s}.info.name '": ' err.message]);
         end
     end
-       % import makers from a non marker type of stream
-    if strcmp(streams{s}.info.type,'audio_onset')
+    % Import non-marker stream as event
+    % All non-zero elements are considered as events
+    if strcmp(streams{s}.info.name,args.stream_as_event)
         try
-            %what characteristic of 
+            %
             onset_Indices=find(streams{s}.time_series);
+            disp(['Interpreting all non zero entries as events.']);
             s_events = struct('type', '', 'latency', [], 'duration', num2cell(ones(1, length(onset_Indices))));
             event_index=1;
             for e=onset_Indices
