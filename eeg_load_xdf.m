@@ -146,6 +146,30 @@ for s=1:length(streams)
             disp(['Could not interpret event stream named "' streams{s}.info.name '": ' err.message]);
         end
     end
+       % import makers from a non marker type of stream
+    if strcmp(streams{s}.info.type,'audio_onset')
+        try
+            %what characteristic of 
+            onset_Indices=find(streams{s}.time_series);
+            s_events = struct('type', '', 'latency', [], 'duration', num2cell(ones(1, length(onset_Indices))));
+            event_index=1;
+            for e=onset_Indices
+                if iscell(streams{s}.time_series)
+                    s_events(event_index).type = streams{s}.time_series{e};
+                else
+                    s_events(event_index).type = num2str(streams{s}.time_series(e));
+                end
+                [~, s_events(event_index).latency] = min(abs(stream.time_stamps - streams{s}.time_stamps(e)));
+                event_index=event_index+1;
+            end
+            event = [event, s_events]; %#ok<AGROW>
+            
+            
+        catch err
+            disp(['Problems reading AFEx data "' streams{s}.info.name '": ' err.message]);
+            
+        end
+    end
 end
 raw.event = event;
 
