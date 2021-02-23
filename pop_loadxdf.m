@@ -73,12 +73,14 @@ if nargin < 1
 
 	% popup window parameters
 	% -----------------------
-    uigeom     = { [1 0.5] [1 0.5] [1 0.5] 0.13};
+    uigeom     = { [1 0.5] [1 0.5] [1 0.5] [1 0.5] 0.13};
     uilist   = { { 'style' 'text' 'string' 'Stream name to import:' } ...
                  { 'style' 'edit' 'string' '' } ...
                  { 'style' 'text' 'string' 'Stream type to import:' } ...
                  { 'style' 'edit' 'string' 'EEG' } ...
                  { 'style' 'text' 'string' 'Exclude marker streams(s):' } ...
+                 { 'style' 'edit' 'string' '{}' } ...
+                 { 'style' 'text' 'string' 'Stream name to import as event:' } ...
                  { 'style' 'edit' 'string' '{}' } {}};
 
 	result = inputgui(uigeom, uilist, 'pophelp(''pop_loadxdf'')', 'Load an XDF file');
@@ -93,6 +95,9 @@ if nargin < 1
         options = [options ', ''streamtype'', ''' result{2} '''']; end
     if ~isempty(result{3}),        
         options = [options ', ''exclude_markerstreams'', ' result{3} '']; end
+    if ~isempty(result{4}),        
+        options = [options ', ''stream_as_event'', ''' result{4} '''']; end
+    
 else
 	options = vararg2str(varargin);
 end;
