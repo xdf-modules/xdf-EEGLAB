@@ -28,6 +28,8 @@ To use `load_xdf` directly:
 As usual in MATLAB, to get the documentation of the function, type `help load_xdf` or `doc load_xdf`.
 
 # Version note
+- version 1.19 includes MATLAB binaries
+- version 1.18 implement fix for g.tek files
 - Version 1.17 fixes to Matlab XDF importer
 - Version 1.16 fixes compilation of submodule xdf-matlab for newer versions of Matlab
 - Version 1.15 fixes importing channel labels when more than 1 stream is present
