@@ -77,15 +77,8 @@ raw.xmax = (raw.pnts-1)/raw.srate;
 % chanlocs...
 chanlocs = struct();
 try
-    if ~iscell(stream.info.desc.channels.channel)
-        warning('Channel structure not a cell array (likely a g.tek writer compatibility issue; Using hack to import channel info)');
-    end
     for c=1:length(stream.info.desc.channels.channel)
-        if iscell(stream.info.desc.channels.channel)
-            chn = stream.info.desc.channels.channel{c};
-        else
-            chn = stream.info.desc.channels.channel(c);
-        end
+        chn = stream.info.desc.channels.channel{c};
         if isfield(chn,'label')
             chanlocs(c).labels = chn.label; end            
         if isfield(chn,'type') && strcmpi(chn.type, 'EEG')
@@ -130,7 +123,7 @@ end
 % events...
 event = [];
 for s=1:length(streams)
-    if (strcmp(streams{s}.info.type,'Markers') || strcmp(streams{s}.info.type,'Events')) && ~ismember(streams{s}.info.name,args.exclude_markerstreams)
+    if (strcmp(streams{s}.info.type,'Markers') || strcmp(streams{s}.info.type,'Events') ) && ~ismember(streams{s}.info.name,args.exclude_markerstreams)
         try
             s_events = struct('type', '', 'latency', [], 'duration', num2cell(ones(1, length(streams{s}.time_stamps))));
             for e=1:length(streams{s}.time_stamps)
@@ -144,6 +137,32 @@ for s=1:length(streams)
             event = [event, s_events]; %#ok<AGROW>
         catch err
             disp(['Could not interpret event stream named "' streams{s}.info.name '": ' err.message]);
+        end
+    end
+    % Import non-marker stream as event
+    % All non-zero elements are considered as events
+    if strcmp(streams{s}.info.name,args.stream_as_event)
+        try
+            %
+            onset_Indices=find(streams{s}.time_series);
+            disp(['Interpreting all non zero entries as events.']);
+            s_events = struct('type', '', 'latency', [], 'duration', num2cell(ones(1, length(onset_Indices))));
+            event_index=1;
+            for e=onset_Indices
+                if iscell(streams{s}.time_series)
+                    s_events(event_index).type = streams{s}.time_series{e};
+                else
+                    s_events(event_index).type = num2str(streams{s}.time_series(e));
+                end
+                [~, s_events(event_index).latency] = min(abs(stream.time_stamps - streams{s}.time_stamps(e)));
+                event_index=event_index+1;
+            end
+            event = [event, s_events]; %#ok<AGROW>
+            
+            
+        catch err
+            disp(['Problems reading AFEx data "' streams{s}.info.name '": ' err.message]);
+            
         end
     end
 end
