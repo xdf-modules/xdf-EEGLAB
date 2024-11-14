@@ -1,4 +1,4 @@
-function raw = eeg_load_xdf(filename, varargin)
+function [raw, streams, EEGStreamInd, markerStreamInds] = eeg_load_xdf(filename, varargin)
 % Import an XDF file from disk
 % EEG = eeg_load_xdf(Filename, Options...)
 %
@@ -19,7 +19,10 @@ function raw = eeg_load_xdf(filename, varargin)
 %                                          use as marker streams (default: {})
 %
 % Out:
-%   EEG : imported EEGLAB data set
+%   EEG              : imported EEGLAB data set
+%   streams          : all XDF streams
+%   EEGStreamInd     : index of first EEG stream
+%   markerStreamInds : indicdes of marker streams
 %
 %                           Christian Kothe, Swartz Center for Computational Neuroscience, UCSD
 %                           2012-05-07
@@ -60,6 +63,7 @@ elseif ~isempty(args.streamtype)
 else
     error('You need to pass either the streamname or the streamtype argument.');
 end
+EEGStreamInd = s;
 
 raw = eeg_emptyset;
 
@@ -129,6 +133,7 @@ end
 
 % events...
 event = [];
+markerStreamInds = [];
 for s=1:length(streams)
     if (strcmp(streams{s}.info.type,'Markers') || strcmp(streams{s}.info.type,'Events')) && ~ismember(streams{s}.info.name,args.exclude_markerstreams)
         try
@@ -142,6 +147,7 @@ for s=1:length(streams)
                 [~, s_events(e).latency] = min(abs(stream.time_stamps - streams{s}.time_stamps(e)));
             end
             event = [event, s_events]; %#ok<AGROW>
+            markerStreamInds = [markerStreamInds s];
         catch err
             disp(['Could not interpret event stream named "' streams{s}.info.name '": ' err.message]);
         end

@@ -82,20 +82,20 @@ if nargin < 1
                  { 'style' 'edit' 'string' '{}' } {}};
 
 	result = inputgui(uigeom, uilist, 'pophelp(''pop_loadxdf'')', 'Load an XDF file');
-	if length( result ) == 0 return; end;
+	if isempty( result ) return; end
 
 	% decode parameters
 	% -----------------
     options = [];
-    if ~isempty(result{1}),
+    if ~isempty(result{1})
         options = [options ', ''streamname'', ''' result{1} '''']; end
-    if ~isempty(result{2}),
+    if ~isempty(result{2})
         options = [options ', ''streamtype'', ''' result{2} '''']; end
-    if ~isempty(result{3}),        
+    if ~isempty(result{3})     
         options = [options ', ''exclude_markerstreams'', ' result{3} '']; end
 else
 	options = vararg2str(varargin);
-end;
+end
 
 % load data
 % ----------
@@ -103,14 +103,14 @@ if exist('filepath','var')
 	fullFileName = sprintf('%s%s', filepath, filename);
 else
 	fullFileName = filename;
-end;
+end
 
 fprintf('Now importing...');
 if nargin > 0    
     EEG = eeg_load_xdf(fullFileName, varargin{:});
 else
 	eval( [ 'EEG = eeg_load_xdf( fullFileName ' options ');' ]);
-end;
+end
 fprintf('done.\n');
 
 EEG = eeg_checkset(EEG);
