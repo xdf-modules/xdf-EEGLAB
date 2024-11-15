@@ -45,11 +45,11 @@
 
 function vers = eegplugin_xdfimport(fig, trystrs, catchstrs)
 
-    vers = 'xdfimport1.19';
+    vers = 'xdfimport2.0';
 
     if nargin < 3
         error('eegplugin_xdfimport requires 3 arguments');
-    end;
+    end
 
     % add folder to path
     % ------------------
@@ -57,7 +57,8 @@ function vers = eegplugin_xdfimport(fig, trystrs, catchstrs)
         p = which('eegplugin_xdfimport.m');
         p = p(1:findstr(p,'eegplugin_xdfimport.m')-1);
         addpath( p );
-    end;
+        addpath( fullfile(p, 'xdf') );
+    end
 
     % find import data menu
     % ---------------------

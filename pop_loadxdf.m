@@ -34,7 +34,7 @@
 % This script is based on pop_loadcnt.m to make it compatible and easy to use in
 % EEGLab.
 %
-% Author: Christian Kothe, Swartz Center for Computational Neuroscience, UCSD, 2012
+% Author: Christian Kothe and Arnaud Delorme, Swartz Center for Computational Neuroscience, UCSD, 2012
 %
 % See also: eeglab(), eeg_load_xdf(), load_xdf()
 %
@@ -69,30 +69,62 @@ if nargin < 1
 	% ask user
 	[filename, filepath] = uigetfile('*.xdf;*.xdfz', 'Choose an XDF file -- pop_loadxdf()');
     drawnow;
-	if filename == 0 return; end;
+	if filename == 0 return; end
+    streams = load_xdf(filename);
+    allStreamNames = cellfun(@(x)x.info.name, streams, 'UniformOutput',false);
+    allStreamTypes = cellfun(@(x)x.info.type, streams, 'UniformOutput',false);
+    
+    indEEG     = strmatch('eeg', lower(allStreamTypes));
+    indMarkers = strmatch('markers', lower(allStreamTypes));
+    if isempty(indEEG)
+        indType = 1;
+    end
+    markerOptions = allStreamNames(indMarkers);
+    allStreamNames(indMarkers) = [];
+
+    % reformat options
+    allStreamNames = [ { 'No selection' } allStreamNames];
+    if isempty(markerOptions), 
+        markerOptions = 'No maker streams'; 
+    else
+        markerOptions = [ { 'No selection' } markerOptions ];
+    end
 
 	% popup window parameters
 	% -----------------------
-    uigeom     = { [1 0.5] [1 0.5] [1 0.5] 0.13};
-    uilist   = { { 'style' 'text' 'string' 'Stream name to import:' } ...
-                 { 'style' 'edit' 'string' '' } ...
-                 { 'style' 'text' 'string' 'Stream type to import:' } ...
-                 { 'style' 'edit' 'string' 'EEG' } ...
+    uigeom     = { [1 1] [1 1] [1 1] [1 1] 1};
+    uilist   = { { 'style' 'text' 'string' 'Primary stream name to import:' } ...
+                 { 'style' 'popupmenu' 'string' allStreamNames } ...
+                 { 'style' 'text' 'string' 'Or primary stream type to import:' } ...
+                 { 'style' 'popupmenu' 'string' allStreamTypes 'value' indEEG } ...
+                 { 'style' 'text' 'string' 'Additional streams to merge:' } ...
+                 { 'style' 'listbox' 'string' allStreamNames 'value', 1, 'max', 2} ...
                  { 'style' 'text' 'string' 'Exclude marker streams(s):' } ...
-                 { 'style' 'edit' 'string' '{}' } {}};
+                 { 'style' 'listbox' 'string' markerOptions 'value', 1, 'max', 2} ...0
+                 { 'style' 'checkbox' 'string' 'Use effective sampling rates computed from time stamps' 'value' 1 } };
 
-	result = inputgui(uigeom, uilist, 'pophelp(''pop_loadxdf'')', 'Load an XDF file');
+    geomvert = [ 1 1 1.8 1.8 1 ];
+	result = inputgui('geometry', uigeom, 'uilist', uilist, 'geomvert', geomvert, 'helpcom', 'pophelp(''pop_loadxdf'')', 'title', 'Load an XDF file');
 	if isempty( result ) return; end
 
 	% decode parameters
 	% -----------------
     options = [];
-    if ~isempty(result{1})
-        options = [options ', ''streamname'', ''' result{1} '''']; end
-    if ~isempty(result{2})
-        options = [options ', ''streamtype'', ''' result{2} '''']; end
-    if ~isempty(result{3})     
-        options = [options ', ''exclude_markerstreams'', ' result{3} '']; end
+    if ~isempty(result{1}) && result{1} ~= 1 
+        options = [options ', ''streamname'', ''' allStreamNames{result{1}} '''']; 
+    end
+    if ~isempty(result{2}) && result{1} == 1
+        options = [options ', ''streamtype'', ''' allStreamTypes{result{2}} '''']; 
+    end
+    if ~isempty(result{3}) && ~isequal(result{3}, 1) 
+        options = [options ', ''fuse_stream_names'', ' vararg2str( { allStreamNames( result{3} ) } ) ]; 
+    end
+    if ~isempty(result{4}) && ~isequal(result{4}, 1)
+        options = [options ', ''exclude_markerstreams'', ' vararg2str( { markerOptions( result{4} ) } ) ]; 
+    end
+    if result{5} == 1
+        options = [options ', ''effective_rate'', true' ]; 
+    end
 else
 	options = vararg2str(varargin);
 end
@@ -119,5 +151,5 @@ if length(options) > 2
     command = sprintf('EEG = pop_loadxdf(''%s'' %s);',fullFileName, options);
 else
     command = sprintf('EEG = pop_loadxdf(''%s'');',fullFileName);
-end;
+end
 
