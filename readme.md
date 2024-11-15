@@ -28,6 +28,7 @@ To use `load_xdf` directly:
 As usual in MATLAB, to get the documentation of the function, type `help load_xdf` or `doc load_xdf`.
 
 # Version note
+- version 1.2  multistream import (backward compatible)
 - version 1.19 includes MATLAB binaries
 - version 1.18 implement fix for g.tek files
 - Version 1.17 fixes to Matlab XDF importer

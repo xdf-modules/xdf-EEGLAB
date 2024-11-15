@@ -109,24 +109,25 @@ if nargin < 1
 
 	% decode parameters
 	% -----------------
-    options = [];
+    options = {};
     if ~isempty(result{1}) && result{1} ~= 1 
-        options = [options ', ''streamname'', ''' allStreamNames{result{1}} '''']; 
+        options = [options { 'streamname' allStreamNames{result{1}} } ]; 
     end
     if ~isempty(result{2}) && result{1} == 1
-        options = [options ', ''streamtype'', ''' allStreamTypes{result{2}} '''']; 
+        options = [options { 'streamtype' allStreamTypes{result{2}} } ]; 
     end
     if ~isempty(result{3}) && ~isequal(result{3}, 1) 
-        options = [options ', ''fuse_stream_names'', ' vararg2str( { allStreamNames( result{3} ) } ) ]; 
+        options = [options { 'fuse_stream_names'  allStreamNames( result{3} ) } ]; 
     end
     if ~isempty(result{4}) && ~isequal(result{4}, 1)
-        options = [options ', ''exclude_markerstreams'', ' vararg2str( { markerOptions( result{4} ) } ) ]; 
+        options = [options { 'exclude_markerstreams' markerOptions( result{4} ) } ]; 
     end
     if result{5} == 1
-        options = [options ', ''effective_rate'', true' ]; 
+        options = [options { 'effective_rate' true } ]; 
     end
 else
-	options = vararg2str(varargin);
+    streams = {};
+	options = varargin;
 end
 
 % load data
@@ -138,17 +139,13 @@ else
 end
 
 fprintf('Now importing...');
-if nargin > 0    
-    EEG = eeg_load_xdf(fullFileName, varargin{:});
-else
-	eval( [ 'EEG = eeg_load_xdf( fullFileName ' options ');' ]);
-end
+EEG = eeg_load_xdf( fullFileName, 'streams', streams, options{:});
 fprintf('done.\n');
 
 EEG = eeg_checkset(EEG);
 
 if length(options) > 2
-    command = sprintf('EEG = pop_loadxdf(''%s'' %s);',fullFileName, options);
+    command = sprintf('EEG = pop_loadxdf(''%s'', %s);',fullFileName, vararg2str(options));
 else
     command = sprintf('EEG = pop_loadxdf(''%s'');',fullFileName);
 end
