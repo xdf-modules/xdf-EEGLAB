@@ -53,7 +53,7 @@ function vers = eegplugin_xdfimport(fig, trystrs, catchstrs)
 
     % add folder to path
     % ------------------
-    if ~exist('pop_loadxdf','file')
+    if ~exist('load_xdf','file')
         p = which('eegplugin_xdfimport.m');
         p = p(1:findstr(p,'eegplugin_xdfimport.m')-1);
         addpath( p );
