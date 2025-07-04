@@ -94,6 +94,7 @@ if ~isempty(args.fuse_stream_names)
 
         % Ensure the two streams have the same timestamps
         % Interpolate data2 to match timestamps1
+        clear data2_interpolated;
         raw2_interpolated = zeros(length(raw.timestamps), size(raw2.data, 1));
         for c = 1:size(raw2.data, 1)
             data2_interpolated(:, c) = interp1(raw2.timestamps, double(raw2.data(c, :)), raw.timestamps, 'linear');
@@ -163,7 +164,8 @@ raw = eeg_emptyset;
 raw.data = stream.time_series;
 raw.timestamps = stream.time_stamps;
 [raw.nbchan,raw.pnts,raw.trials] = size(raw.data);
-if args.effective_rate && isfinite(stream.info.effective_srate) && stream.info.effective_srate>0
+if args.effective_rate && isfield(stream.info, 'effective_srate') && ...
+        isfinite(stream.info.effective_srate) && stream.info.effective_srate>0
     raw.srate = stream.info.effective_srate;
 else
     raw.srate = str2num(stream.info.nominal_srate); %#ok<ST2NM>
